@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_bac0512f4101fe2c59bf9a86df3ca79b {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+     <div id="legend" style="position: fixed; top: 50px; left: 50px; z-index:1000; background-color: white; opacity: 0.75; border: 2px solid grey; font-size: 14px; padding: 10px; border-radius: 10px; max-height: 300px; overflow-y: auto;">
+     <h3 style="text-align: center; font-weight: bold;">Distance, nombres de pas et temps estimé</h3>
+&nbsp; <span style='color:blue; font-weight: bold;'>Gare ↔ Hôtel de Ville</span>: 600 mètres, 800 pas, 9 min<br>&nbsp; <span style='color:green; font-weight: bold;'>Gare ↔ Piscine</span>: 5300 mètres, 7100 pas, 72 min<br>&nbsp; <span style='color:red; font-weight: bold;'>Gare ↔ Château</span>: 1000 mètres, 1333 pas, 15 min<br>&nbsp; <span style='color:purple; font-weight: bold;'>Hôtel de Ville ↔ Bibliothèque</span>: 210 mètres, 280 pas, 3 min<br>&nbsp; <span style='color:orange; font-weight: bold;'>Hôtel de Ville ↔ Château</span>: 450 mètres, 600 pas, 6 min<br>&nbsp; <span style='color:brown; font-weight: bold;'>Hôtel de Ville ↔ Parc de Bayser</span>: 2800 mètres, 3733 pas, 39 min<br>&nbsp; <span style='color:cadetblue; font-weight: bold;'>Hôtel de Ville ↔ UTC</span>: 650 mètres, 866 pas, 9 min<br>&nbsp; <span style='color:blue; font-weight: bold;'>Hôtel de Ville ↔ Parc Songeons</span>: 550 mètres, 733 pas, 7 min<br>&nbsp; <span style='color:pink; font-weight: bold;'>Château ↔ Hippodrome</span>: 1700 mètres, 2266 pas, 23 min<br>&nbsp; <span style='color:brown; font-weight: bold;'>Château ↔ Belvédère des Beaux-Monts</span>: 5600 mètres, 7466 pas, 80 min<br>&nbsp; <span style='color:red; font-weight: bold;'>Château ↔ Parc Songeons</span>: 1000 mètres, 1333 pas, 13 min<br>&nbsp; <span style='color:darkorange; font-weight: bold;'>Hippodrome ↔ Parc de Bayser</span>: 4300 mètres, 5733 pas, 59 min<br>&nbsp; <span style='color:lightgreen; font-weight: bold;'>Piscine ↔ Parc de Bayser</span>: 2400 mètres, 3200 pas, 34 min<br>
+     </div>
+     <button onclick="toggleLegend()" style="position: fixed; top: 10px; left: 50px; z-index:1001;">Afficher/Cacher Légende</button>
+     <script>
+         function toggleLegend() {
+             var legend = document.getElementById('legend');
+             if (legend.style.display === 'none') {
+                 legend.style.display = 'block';
+             } else {
+                 legend.style.display = 'none';
+             }
+         }
+     </script>
+     
+    
+     <div style="position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); z-index:1000; background-color: rgba(192,192,192,0.5); border: 2px solid grey; font-size: 12px; padding: 10px; border-radius: 10px; text-align: center; display: inline-block; width: 95%;">
+     Nicolas OURSEL - Enseignant en Activité Physique Adaptée - Centre Hospitalier Intercommunal Compiègne-Noyon. Tous droits réservés.</div>
+    
+            <div class="folium-map" id="map_bac0512f4101fe2c59bf9a86df3ca79b" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_bac0512f4101fe2c59bf9a86df3ca79b = L.map(
+                "map_bac0512f4101fe2c59bf9a86df3ca79b",
+                {
+                    center: [49.418363, 2.823509],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 14,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_5001f05d9df3f768910e544f42d0db39 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+        
+    
+            tile_layer_5001f05d9df3f768910e544f42d0db39.addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var marker_bb243a92be3c68c4750d6c6a693d6f25 = L.marker(
+                [49.41785, 2.825922],
+                {}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var icon_181fcb140dfef96caece9b16f339d94e = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "university", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_bb243a92be3c68c4750d6c6a693d6f25.setIcon(icon_181fcb140dfef96caece9b16f339d94e);
+        
+    
+        var popup_5c5d36681ba1d37f3c4755c196e1847c = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_2f853ab72feee45be76639be1b4520e0 = $(`<div id="html_2f853ab72feee45be76639be1b4520e0" style="width: 100.0%; height: 100.0%;">Hôtel de Ville de Compiègne</div>`)[0];
+                popup_5c5d36681ba1d37f3c4755c196e1847c.setContent(html_2f853ab72feee45be76639be1b4520e0);
+            
+        
+
+        marker_bb243a92be3c68c4750d6c6a693d6f25.bindPopup(popup_5c5d36681ba1d37f3c4755c196e1847c)
+        ;
+
+        
+    
+    
+            var marker_75bc2378f7feab69970880ece0e05c43 = L.marker(
+                [49.419296, 2.831806],
+                {}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var icon_cc288e3edbe256eb672f4f0fd7307360 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "crown", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_75bc2378f7feab69970880ece0e05c43.setIcon(icon_cc288e3edbe256eb672f4f0fd7307360);
+        
+    
+        var popup_f1effed78d39ab25b750f284da00687d = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_80d4231de591a9fe3dbaa0ce42916187 = $(`<div id="html_80d4231de591a9fe3dbaa0ce42916187" style="width: 100.0%; height: 100.0%;">Château de Compiègne</div>`)[0];
+                popup_f1effed78d39ab25b750f284da00687d.setContent(html_80d4231de591a9fe3dbaa0ce42916187);
+            
+        
+
+        marker_75bc2378f7feab69970880ece0e05c43.bindPopup(popup_f1effed78d39ab25b750f284da00687d)
+        ;
+
+        
+    
+    
+            var marker_d824548b6313595cb200649c1eaf048e = L.marker(
+                [49.422057, 2.82352],
+                {}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var icon_4872d577c1c0cc24a83d7752a0f24ab4 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "train", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_d824548b6313595cb200649c1eaf048e.setIcon(icon_4872d577c1c0cc24a83d7752a0f24ab4);
+        
+    
+        var popup_ffdbbc05a6447988693764737703285a = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_40a190537627e756b6591a2e4b77d985 = $(`<div id="html_40a190537627e756b6591a2e4b77d985" style="width: 100.0%; height: 100.0%;">Gare de Compiègne</div>`)[0];
+                popup_ffdbbc05a6447988693764737703285a.setContent(html_40a190537627e756b6591a2e4b77d985);
+            
+        
+
+        marker_d824548b6313595cb200649c1eaf048e.bindPopup(popup_ffdbbc05a6447988693764737703285a)
+        ;
+
+        
+    
+    
+            var marker_3952660af0b04f03645bbc90cb8264f7 = L.marker(
+                [49.415266, 2.819036],
+                {}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var icon_ee9a25bf9b37e0de471c596300fdc9ea = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "graduation-cap", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_3952660af0b04f03645bbc90cb8264f7.setIcon(icon_ee9a25bf9b37e0de471c596300fdc9ea);
+        
+    
+        var popup_6244e673bc66aadbb7ab8f4943a58ba3 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_dc6545a53a24a889743b50013263b43f = $(`<div id="html_dc6545a53a24a889743b50013263b43f" style="width: 100.0%; height: 100.0%;">Université de Technologie de Compiègne</div>`)[0];
+                popup_6244e673bc66aadbb7ab8f4943a58ba3.setContent(html_dc6545a53a24a889743b50013263b43f);
+            
+        
+
+        marker_3952660af0b04f03645bbc90cb8264f7.bindPopup(popup_6244e673bc66aadbb7ab8f4943a58ba3)
+        ;
+
+        
+    
+    
+            var marker_f28c8c86afbe7ccdf44451a67fdf5ebd = L.marker(
+                [49.389063, 2.7825],
+                {}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var icon_37b55c01821791bea18fffbddff979e6 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "tint", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_f28c8c86afbe7ccdf44451a67fdf5ebd.setIcon(icon_37b55c01821791bea18fffbddff979e6);
+        
+    
+        var popup_3dce6084d13fe9c3f40ea40988158d3f = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_1031deb4dbd52a75ac52ea099d072c55 = $(`<div id="html_1031deb4dbd52a75ac52ea099d072c55" style="width: 100.0%; height: 100.0%;">Piscine de Mercières</div>`)[0];
+                popup_3dce6084d13fe9c3f40ea40988158d3f.setContent(html_1031deb4dbd52a75ac52ea099d072c55);
+            
+        
+
+        marker_f28c8c86afbe7ccdf44451a67fdf5ebd.bindPopup(popup_3dce6084d13fe9c3f40ea40988158d3f)
+        ;
+
+        
+    
+    
+            var marker_ca576f1badf8d87a18216ed5c1dae0d6 = L.marker(
+                [49.399338, 2.802093],
+                {}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var icon_15b1fb22e7eed196bc000efbdceeb072 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "tree", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_ca576f1badf8d87a18216ed5c1dae0d6.setIcon(icon_15b1fb22e7eed196bc000efbdceeb072);
+        
+    
+        var popup_fc8fcce5f29f5534310bd221437ae3aa = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_160f5af7c81a49e76e7176cf6882250b = $(`<div id="html_160f5af7c81a49e76e7176cf6882250b" style="width: 100.0%; height: 100.0%;">Parc de Bayser</div>`)[0];
+                popup_fc8fcce5f29f5534310bd221437ae3aa.setContent(html_160f5af7c81a49e76e7176cf6882250b);
+            
+        
+
+        marker_ca576f1badf8d87a18216ed5c1dae0d6.bindPopup(popup_fc8fcce5f29f5534310bd221437ae3aa)
+        ;
+
+        
+    
+    
+            var marker_edbcbad0c11aa12953d77c4071a40724 = L.marker(
+                [49.411644, 2.843184],
+                {}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var icon_78e6437c1e7046b3495b87dd731d8234 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "horse", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_edbcbad0c11aa12953d77c4071a40724.setIcon(icon_78e6437c1e7046b3495b87dd731d8234);
+        
+    
+        var popup_c37362d8191f0d27c9e49a4532682195 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_357221613359471d9cafb4a9d43ac78f = $(`<div id="html_357221613359471d9cafb4a9d43ac78f" style="width: 100.0%; height: 100.0%;">Hippodrome de Compiègne</div>`)[0];
+                popup_c37362d8191f0d27c9e49a4532682195.setContent(html_357221613359471d9cafb4a9d43ac78f);
+            
+        
+
+        marker_edbcbad0c11aa12953d77c4071a40724.bindPopup(popup_c37362d8191f0d27c9e49a4532682195)
+        ;
+
+        
+    
+    
+            var marker_eba4c6e496ab161573c26648dd2554cc = L.marker(
+                [49.416916, 2.82484],
+                {}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var icon_afbfbcadc288e8676dd4dba8596633f7 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "book", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_eba4c6e496ab161573c26648dd2554cc.setIcon(icon_afbfbcadc288e8676dd4dba8596633f7);
+        
+    
+        var popup_d36dddc921bf06173cdf0ecb66503932 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_31c6426032cba257af67a64044d0cb4a = $(`<div id="html_31c6426032cba257af67a64044d0cb4a" style="width: 100.0%; height: 100.0%;">Bibliothèque de Compiègne</div>`)[0];
+                popup_d36dddc921bf06173cdf0ecb66503932.setContent(html_31c6426032cba257af67a64044d0cb4a);
+            
+        
+
+        marker_eba4c6e496ab161573c26648dd2554cc.bindPopup(popup_d36dddc921bf06173cdf0ecb66503932)
+        ;
+
+        
+    
+    
+            var marker_07d3dc0ab76a57de482a153b5e616a3b = L.marker(
+                [49.40522, 2.89014],
+                {}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var icon_aa8fd713e122dd7704126cfb2f11458f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "binoculars", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_07d3dc0ab76a57de482a153b5e616a3b.setIcon(icon_aa8fd713e122dd7704126cfb2f11458f);
+        
+    
+        var popup_4123f02837cafba43f0cab0cefc3e2f4 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_989a95654e90b01aa726e2ff26d7a957 = $(`<div id="html_989a95654e90b01aa726e2ff26d7a957" style="width: 100.0%; height: 100.0%;">Belvédère des Beaux-Monts</div>`)[0];
+                popup_4123f02837cafba43f0cab0cefc3e2f4.setContent(html_989a95654e90b01aa726e2ff26d7a957);
+            
+        
+
+        marker_07d3dc0ab76a57de482a153b5e616a3b.bindPopup(popup_4123f02837cafba43f0cab0cefc3e2f4)
+        ;
+
+        
+    
+    
+            var marker_665ed48b5bbaabbe0345fb4c71ef5269 = L.marker(
+                [49.417644, 2.820337],
+                {}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+            var icon_8c154f2e45a1ac729197fc9ce0e8f398 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "tree", "iconColor": "white", "markerColor": "blue", "prefix": "fa"}
+            );
+            marker_665ed48b5bbaabbe0345fb4c71ef5269.setIcon(icon_8c154f2e45a1ac729197fc9ce0e8f398);
+        
+    
+        var popup_75580bb6a2daad784ef771b6737c474b = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_a0de87afeeb420804017813c71092283 = $(`<div id="html_a0de87afeeb420804017813c71092283" style="width: 100.0%; height: 100.0%;">Parc Songeons</div>`)[0];
+                popup_75580bb6a2daad784ef771b6737c474b.setContent(html_a0de87afeeb420804017813c71092283);
+            
+        
+
+        marker_665ed48b5bbaabbe0345fb4c71ef5269.bindPopup(popup_75580bb6a2daad784ef771b6737c474b)
+        ;
+
+        
+    
+    
+            var poly_line_7ede6350fadc40532bcd6da980991189 = L.polyline(
+                [[49.422086, 2.823484], [49.422121, 2.82355], [49.422004, 2.8237], [49.421964, 2.823753], [49.421932, 2.823671], [49.421836, 2.823794], [49.421796, 2.823822], [49.421469, 2.824253], [49.421434, 2.824264], [49.421392, 2.824215], [49.421329, 2.824232], [49.421289, 2.824161], [49.420682, 2.823042], [49.42055, 2.822894], [49.420466, 2.822859], [49.420432, 2.822886], [49.420396, 2.822926], [49.419783, 2.823551], [49.419622, 2.823722], [49.419553, 2.823799], [49.419419, 2.82392], [49.418956, 2.824424], [49.418701, 2.824707], [49.418447, 2.824984], [49.418414, 2.825021], [49.41838, 2.825055], [49.418301, 2.82514], [49.41848, 2.825524], [49.418452, 2.825573], [49.418133, 2.825839], [49.418013, 2.825915], [49.417959, 2.825768], [49.417832, 2.82587]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_48acf1cf7d5745df134808ab413c4513 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_0c5050677f0781afbda7b3655cf473f1 = $(`<div id="html_0c5050677f0781afbda7b3655cf473f1" style="width: 100.0%; height: 100.0%;">Gare ↔ Hôtel de Ville<br>600 mètres, 800 pas, 9 min</div>`)[0];
+                popup_48acf1cf7d5745df134808ab413c4513.setContent(html_0c5050677f0781afbda7b3655cf473f1);
+            
+        
+
+        poly_line_7ede6350fadc40532bcd6da980991189.bindPopup(popup_48acf1cf7d5745df134808ab413c4513)
+        ;
+
+        
+    
+    
+            var poly_line_749190ba20e8b3cce64f13f0980fdede = L.polyline(
+                [[49.422086, 2.823484], [49.422121, 2.82355], [49.422004, 2.8237], [49.421964, 2.823753], [49.421932, 2.823671], [49.421836, 2.823794], [49.421796, 2.823822], [49.421469, 2.824253], [49.421434, 2.824264], [49.421392, 2.824215], [49.421329, 2.824232], [49.421289, 2.824161], [49.420682, 2.823042], [49.42055, 2.822894], [49.420466, 2.822859], [49.420432, 2.822886], [49.420396, 2.822926], [49.419783, 2.823551], [49.419622, 2.823722], [49.419565, 2.823564], [49.419695, 2.823443], [49.419695, 2.823414], [49.419678, 2.823317], [49.419468, 2.822706], [49.4189, 2.821841], [49.418549, 2.821278], [49.418558, 2.821243], [49.418306, 2.820779], [49.417703, 2.819248], [49.417578, 2.819065], [49.417227, 2.818493], [49.417005, 2.818036], [49.416854, 2.817756], [49.416658, 2.817379], [49.416452, 2.816971], [49.415948, 2.815998], [49.415848, 2.815737], [49.415359, 2.814864], [49.414384, 2.813224], [49.414112, 2.812693], [49.414001, 2.812366], [49.413879, 2.81208], [49.413811, 2.811825], [49.413375, 2.810205], [49.413297, 2.810023], [49.413291, 2.809914], [49.413229, 2.809674], [49.41309, 2.809206], [49.413016, 2.809141], [49.412968, 2.809067], [49.412816, 2.808529], [49.412729, 2.808308], [49.412605, 2.80786], [49.412394, 2.80722], [49.412341, 2.806998], [49.412304, 2.806659], [49.412318, 2.806524], [49.412172, 2.805014], [49.412085, 2.803131], [49.411911, 2.801694], [49.411797, 2.80119], [49.411749, 2.801131], [49.41166, 2.800907], [49.411422, 2.800479], [49.411052, 2.800001], [49.410667, 2.799638], [49.410509, 2.799508], [49.410222, 2.799342], [49.409985, 2.799276], [49.40932, 2.798863], [49.409069, 2.798781], [49.408183, 2.798434], [49.408021, 2.798404], [49.407743, 2.798363], [49.406989, 2.798042], [49.406559, 2.797983], [49.406187, 2.797825], [49.405952, 2.797681], [49.405672, 2.797583], [49.405599, 2.797492], [49.404901, 2.797089], [49.404385, 2.796846], [49.403852, 2.796379], [49.403086, 2.795719], [49.402815, 2.795444], [49.402357, 2.794749], [49.401478, 2.793607], [49.401071, 2.792979], [49.400844, 2.79259], [49.400694, 2.792415], [49.400578, 2.792353], [49.400458, 2.792193], [49.40027, 2.791943], [49.399924, 2.791111], [49.399254, 2.790149], [49.39882, 2.789493], [49.398153, 2.788085], [49.397461, 2.786528], [49.397154, 2.785972], [49.396841, 2.785494], [49.396073, 2.784664], [49.395348, 2.784103], [49.394961, 2.784038], [49.394532, 2.784044], [49.39398, 2.783877], [49.393761, 2.78372], [49.39354, 2.783517], [49.391555, 2.782927], [49.390425, 2.78245], [49.390086, 2.782411], [49.389813, 2.782452], [49.389672, 2.78252], [49.389555, 2.782633], [49.389496, 2.782783], [49.389402, 2.782892]],
+                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "green", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_48c6db4669b73b083663f0df6187a355 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_31ca5acec42980e101a53121a7ae7747 = $(`<div id="html_31ca5acec42980e101a53121a7ae7747" style="width: 100.0%; height: 100.0%;">Gare ↔ Piscine<br>5300 mètres, 7100 pas, 72 min</div>`)[0];
+                popup_48c6db4669b73b083663f0df6187a355.setContent(html_31ca5acec42980e101a53121a7ae7747);
+            
+        
+
+        poly_line_749190ba20e8b3cce64f13f0980fdede.bindPopup(popup_48c6db4669b73b083663f0df6187a355)
+        ;
+
+        
+    
+    
+            var poly_line_70edc5d1dcf21ec71c6b0839c6eeab55 = L.polyline(
+                [[49.422086, 2.823484], [49.422121, 2.82355], [49.422004, 2.8237], [49.421964, 2.823753], [49.421932, 2.823671], [49.421836, 2.823794], [49.421796, 2.823822], [49.421469, 2.824253], [49.421434, 2.824264], [49.421392, 2.824215], [49.421329, 2.824232], [49.421289, 2.824161], [49.420682, 2.823042], [49.42055, 2.822894], [49.420466, 2.822859], [49.420432, 2.822886], [49.420396, 2.822926], [49.419783, 2.823551], [49.419622, 2.823722], [49.419553, 2.823799], [49.419419, 2.82392], [49.418956, 2.824424], [49.419542, 2.825503], [49.419313, 2.825802], [49.418922, 2.826219], [49.418867, 2.826273], [49.418575, 2.826592], [49.418356, 2.826808], [49.418283, 2.826926], [49.418279, 2.827055], [49.418322, 2.827552], [49.41833, 2.827645], [49.41847, 2.828168], [49.418667, 2.828707], [49.418042, 2.829487], [49.417456, 2.830226], [49.41775, 2.830733], [49.417518, 2.83102], [49.417535, 2.831064], [49.417596, 2.831089], [49.417616, 2.831164], [49.417449, 2.831927], [49.417639, 2.832026], [49.417859, 2.831962], [49.417978, 2.831887], [49.418302, 2.831806], [49.418358, 2.831763], [49.418459, 2.831871], [49.418495, 2.831975], [49.418551, 2.83202], [49.418577, 2.83203], [49.418654, 2.832069], [49.418863, 2.832174], [49.41892, 2.831905], [49.419246, 2.832058]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_510c31da7eb3317d1acccf6902dfee16 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_f3cf4d3304e72731bf780aeb6b4de349 = $(`<div id="html_f3cf4d3304e72731bf780aeb6b4de349" style="width: 100.0%; height: 100.0%;">Gare ↔ Château<br>1000 mètres, 1333 pas, 15 min</div>`)[0];
+                popup_510c31da7eb3317d1acccf6902dfee16.setContent(html_f3cf4d3304e72731bf780aeb6b4de349);
+            
+        
+
+        poly_line_70edc5d1dcf21ec71c6b0839c6eeab55.bindPopup(popup_510c31da7eb3317d1acccf6902dfee16)
+        ;
+
+        
+    
+    
+            var poly_line_6ace318c3013eb00167f98db17df5a6b = L.polyline(
+                [[49.417832, 2.82587], [49.417687, 2.825988], [49.417584, 2.826036], [49.41762, 2.825927], [49.417617, 2.825811], [49.417484, 2.825406], [49.41748, 2.825343], [49.41738, 2.825349], [49.417107, 2.825559], [49.416933, 2.825061], [49.416979, 2.825024]],
+                {"bubblingMouseEvents": true, "color": "purple", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "purple", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_d54d2b77b4cb0c9d19f04104fa95051b = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_ed106df9a7edcb4ed72cd82597edf50f = $(`<div id="html_ed106df9a7edcb4ed72cd82597edf50f" style="width: 100.0%; height: 100.0%;">Hôtel de Ville ↔ Bibliothèque<br>210 mètres, 280 pas, 3 min</div>`)[0];
+                popup_d54d2b77b4cb0c9d19f04104fa95051b.setContent(html_ed106df9a7edcb4ed72cd82597edf50f);
+            
+        
+
+        poly_line_6ace318c3013eb00167f98db17df5a6b.bindPopup(popup_d54d2b77b4cb0c9d19f04104fa95051b)
+        ;
+
+        
+    
+    
+            var poly_line_e0db22b0df6ec65f44e882bbb2f8f4eb = L.polyline(
+                [[49.417832, 2.82587], [49.417959, 2.825768], [49.418013, 2.825915], [49.418324, 2.826684], [49.418356, 2.826808], [49.418283, 2.826926], [49.418279, 2.827055], [49.418322, 2.827552], [49.41833, 2.827645], [49.41847, 2.828168], [49.418667, 2.828707], [49.418042, 2.829487], [49.417456, 2.830226], [49.41775, 2.830733], [49.417518, 2.83102], [49.417535, 2.831064], [49.417596, 2.831089], [49.417616, 2.831164], [49.417449, 2.831927], [49.417639, 2.832026], [49.417859, 2.831962], [49.417978, 2.831887], [49.418302, 2.831806], [49.418358, 2.831763], [49.418459, 2.831871], [49.418495, 2.831975], [49.418551, 2.83202], [49.418577, 2.83203], [49.418654, 2.832069], [49.418863, 2.832174], [49.41892, 2.831905], [49.419246, 2.832058]],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "orange", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_78587641eefda90047f591e24f41f336 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_a4091d9317ee2e28a7c0f8344e713f5d = $(`<div id="html_a4091d9317ee2e28a7c0f8344e713f5d" style="width: 100.0%; height: 100.0%;">Hôtel de Ville ↔ Château<br>450 mètres, 600 pas, 6 min</div>`)[0];
+                popup_78587641eefda90047f591e24f41f336.setContent(html_a4091d9317ee2e28a7c0f8344e713f5d);
+            
+        
+
+        poly_line_e0db22b0df6ec65f44e882bbb2f8f4eb.bindPopup(popup_78587641eefda90047f591e24f41f336)
+        ;
+
+        
+    
+    
+            var poly_line_9183d809c94f82eb0b6fea1807dfcb36 = L.polyline(
+                [[49.417832, 2.82587], [49.417687, 2.825988], [49.417584, 2.826036], [49.417422, 2.826173], [49.417198, 2.826304], [49.417102, 2.826371], [49.417021, 2.826146], [49.416875, 2.825754], [49.416691, 2.82528], [49.416669, 2.825224], [49.416628, 2.824898], [49.416622, 2.824844], [49.416594, 2.824629], [49.416579, 2.824489], [49.416546, 2.824178], [49.416528, 2.823984], [49.416487, 2.823804], [49.416171, 2.822991], [49.416115, 2.822883], [49.416033, 2.822818], [49.415988, 2.822823], [49.41591, 2.822901], [49.415853, 2.822811], [49.415799, 2.822732], [49.415844, 2.822664], [49.415783, 2.822572], [49.415662, 2.822367], [49.415378, 2.821675], [49.415276, 2.821421], [49.415004, 2.820746], [49.414847, 2.820382], [49.414778, 2.820267], [49.414726, 2.82013], [49.414398, 2.819369], [49.414287, 2.819118], [49.413473, 2.817277], [49.413386, 2.817114], [49.41335, 2.816984], [49.413286, 2.81696], [49.413201, 2.816763], [49.413101, 2.816569], [49.412576, 2.815553], [49.412546, 2.815497], [49.412326, 2.815768], [49.412259, 2.815649], [49.412042, 2.8159], [49.411948, 2.815761], [49.411846, 2.815641], [49.411542, 2.816017], [49.410068, 2.813416], [49.410007, 2.813305], [49.409486, 2.81236], [49.409178, 2.811797], [49.408901, 2.811289], [49.408623, 2.810783], [49.40846, 2.810512], [49.408396, 2.810394], [49.408184, 2.810006], [49.407994, 2.809651], [49.407731, 2.809182], [49.407696, 2.809238], [49.407508, 2.808907], [49.407469, 2.808913], [49.407468, 2.808882], [49.407436, 2.808887], [49.407349, 2.808766], [49.407462, 2.808587], [49.40743, 2.808543], [49.407488, 2.808506], [49.407477, 2.80847], [49.407443, 2.808347], [49.407433, 2.808317], [49.407369, 2.8084], [49.407323, 2.808368], [49.407343, 2.808318], [49.407336, 2.808268], [49.407275, 2.808152], [49.407257, 2.808178], [49.40701, 2.807792], [49.406904, 2.807627], [49.406813, 2.807486], [49.40673, 2.80732], [49.406642, 2.807433], [49.406604, 2.807358], [49.406408, 2.807603], [49.406421, 2.807634], [49.40625, 2.807853], [49.406171, 2.807946], [49.406119, 2.808008], [49.406034, 2.807888], [49.405978, 2.807842], [49.405948, 2.807918], [49.404338, 2.806489], [49.404041, 2.806221], [49.40395, 2.806269], [49.403869, 2.806224], [49.403818, 2.806154], [49.403787, 2.805991], [49.40355, 2.805773], [49.403218, 2.805511], [49.403137, 2.805475], [49.402896, 2.805207], [49.402787, 2.805127], [49.402389, 2.80473], [49.402138, 2.804581], [49.402077, 2.804476], [49.401889, 2.804358], [49.401613, 2.804065], [49.401473, 2.803988], [49.40128, 2.803832], [49.401128, 2.803641], [49.401044, 2.803535], [49.400988, 2.803475], [49.400976, 2.803464], [49.40095, 2.803435], [49.400938, 2.803424], [49.400895, 2.803379], [49.40083, 2.803346], [49.400375, 2.802936], [49.400295, 2.802863], [49.400388, 2.802735], [49.400358, 2.802689], [49.400207, 2.802239], [49.400027, 2.801532], [49.399959, 2.80133], [49.399887, 2.801], [49.399553, 2.801846], [49.399421, 2.802172]],
+                {"bubblingMouseEvents": true, "color": "brown", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "brown", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_aa988f27965df6c5aec95110a01ee55f = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_881bfac5d7d647e08f42f4f646eb590a = $(`<div id="html_881bfac5d7d647e08f42f4f646eb590a" style="width: 100.0%; height: 100.0%;">Hôtel de Ville ↔ Parc de Bayser<br>2800 mètres, 3733 pas, 39 min</div>`)[0];
+                popup_aa988f27965df6c5aec95110a01ee55f.setContent(html_881bfac5d7d647e08f42f4f646eb590a);
+            
+        
+
+        poly_line_9183d809c94f82eb0b6fea1807dfcb36.bindPopup(popup_aa988f27965df6c5aec95110a01ee55f)
+        ;
+
+        
+    
+    
+            var poly_line_8d0157d421ac3888bb3f16845ad16e09 = L.polyline(
+                [[49.417832, 2.82587], [49.417959, 2.825768], [49.417907, 2.825621], [49.417898, 2.82554], [49.417754, 2.825177], [49.417701, 2.825126], [49.417715, 2.82505], [49.417685, 2.824962], [49.417644, 2.824842], [49.417592, 2.824675], [49.417534, 2.824506], [49.417466, 2.824294], [49.417427, 2.824174], [49.417325, 2.823973], [49.417274, 2.823907], [49.41722, 2.823742], [49.417141, 2.8235], [49.416998, 2.823601], [49.416949, 2.82351], [49.41672, 2.822999], [49.416825, 2.822865], [49.416658, 2.822519], [49.416676, 2.82251], [49.416455, 2.821951], [49.416177, 2.821132], [49.416097, 2.820897], [49.415844, 2.82016], [49.415664, 2.819589], [49.4156, 2.819587], [49.415567, 2.819543], [49.415555, 2.819459], [49.415582, 2.819383], [49.415541, 2.819309], [49.415437, 2.819088], [49.415382, 2.819151], [49.415345, 2.81907], [49.41533, 2.819039], [49.415347, 2.819021], [49.415343, 2.819014], [49.415342, 2.819011], [49.415332, 2.818989], [49.41531, 2.819013]],
+                {"bubblingMouseEvents": true, "color": "cadetblue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "cadetblue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_c4ead44a9332cd6b10f796289f78031e = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_eabf5324ede4461c23cf38e8c0893fa4 = $(`<div id="html_eabf5324ede4461c23cf38e8c0893fa4" style="width: 100.0%; height: 100.0%;">Hôtel de Ville ↔ UTC<br>650 mètres, 866 pas, 9 min</div>`)[0];
+                popup_c4ead44a9332cd6b10f796289f78031e.setContent(html_eabf5324ede4461c23cf38e8c0893fa4);
+            
+        
+
+        poly_line_8d0157d421ac3888bb3f16845ad16e09.bindPopup(popup_c4ead44a9332cd6b10f796289f78031e)
+        ;
+
+        
+    
+    
+            var poly_line_979190f387bfd3a24222cdc7041f8854 = L.polyline(
+                [[49.417832, 2.82587], [49.417959, 2.825768], [49.417907, 2.825621], [49.417898, 2.82554], [49.417754, 2.825177], [49.417701, 2.825126], [49.417715, 2.82505], [49.417685, 2.824962], [49.417644, 2.824842], [49.417592, 2.824675], [49.417534, 2.824506], [49.417466, 2.824294], [49.417427, 2.824174], [49.417325, 2.823973], [49.41735, 2.823876], [49.417426, 2.823816], [49.417537, 2.823728], [49.417609, 2.823689], [49.417597, 2.823637], [49.417839, 2.823488], [49.41774, 2.823108], [49.417714, 2.823097], [49.41778, 2.823025], [49.417752, 2.822917], [49.417594, 2.822364], [49.417299, 2.821858], [49.417495, 2.82183], [49.417399, 2.821634], [49.417393, 2.821586], [49.417389, 2.821556], [49.417129, 2.821149], [49.41728, 2.820962], [49.417389, 2.820934], [49.417442, 2.820916], [49.417616, 2.820723], [49.417646, 2.820768], [49.417673, 2.820713], [49.417685, 2.820437]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_b4826ca87ce6d209730a8dc46a4e092f = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_fce06cfd5eb54164bf54be0c70afe73b = $(`<div id="html_fce06cfd5eb54164bf54be0c70afe73b" style="width: 100.0%; height: 100.0%;">Hôtel de Ville ↔ Parc Songeons<br>550 mètres, 733 pas, 7 min</div>`)[0];
+                popup_b4826ca87ce6d209730a8dc46a4e092f.setContent(html_fce06cfd5eb54164bf54be0c70afe73b);
+            
+        
+
+        poly_line_979190f387bfd3a24222cdc7041f8854.bindPopup(popup_b4826ca87ce6d209730a8dc46a4e092f)
+        ;
+
+        
+    
+    
+            var poly_line_c34ed6e7466261905d199cce4990f2e3 = L.polyline(
+                [[49.419246, 2.832058], [49.41892, 2.831905], [49.418863, 2.832174], [49.418654, 2.832069], [49.418577, 2.83203], [49.418551, 2.83202], [49.418495, 2.831975], [49.418323, 2.83201], [49.41803, 2.832155], [49.417803, 2.832359], [49.41773, 2.832429], [49.417681, 2.83252], [49.417573, 2.832993], [49.417431, 2.832908], [49.417353, 2.832879], [49.417283, 2.832835], [49.417253, 2.832816], [49.417139, 2.832741], [49.417039, 2.832682], [49.416905, 2.832605], [49.416927, 2.832516], [49.416689, 2.832824], [49.416602, 2.832663], [49.416504, 2.832479], [49.416411, 2.8326], [49.411865, 2.838404], [49.411932, 2.83858], [49.411989, 2.838931], [49.411985, 2.839217], [49.411956, 2.839481], [49.411856, 2.839732], [49.411709, 2.840015], [49.411512, 2.840179], [49.411315, 2.840263]],
+                {"bubblingMouseEvents": true, "color": "pink", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "pink", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_90f2445d853f267473ddc9a34c69ad39 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_6789474d6d9c2710f8e6f49c750722c7 = $(`<div id="html_6789474d6d9c2710f8e6f49c750722c7" style="width: 100.0%; height: 100.0%;">Château ↔ Hippodrome<br>1700 mètres, 2266 pas, 23 min</div>`)[0];
+                popup_90f2445d853f267473ddc9a34c69ad39.setContent(html_6789474d6d9c2710f8e6f49c750722c7);
+            
+        
+
+        poly_line_c34ed6e7466261905d199cce4990f2e3.bindPopup(popup_90f2445d853f267473ddc9a34c69ad39)
+        ;
+
+        
+    
+    
+            var poly_line_b4a19b6118288430a78e59c188464199 = L.polyline(
+                [[49.419246, 2.832058], [49.41892, 2.831905], [49.418863, 2.832174], [49.418616, 2.833286], [49.418484, 2.83323], [49.418416, 2.833233], [49.418215, 2.833223], [49.418079, 2.833255], [49.417761, 2.833888], [49.417552, 2.834376], [49.417273, 2.835159], [49.417168, 2.835701], [49.417135, 2.836548], [49.417077, 2.83687], [49.416955, 2.837326], [49.41683, 2.83768], [49.416583, 2.838094], [49.416495, 2.838228], [49.416519, 2.838724], [49.416564, 2.839016], [49.416571, 2.839247], [49.416547, 2.839526], [49.4165, 2.839746], [49.416589, 2.840046], [49.416931, 2.840389], [49.416892, 2.84061], [49.416934, 2.841427], [49.416648, 2.842632], [49.416551, 2.843039], [49.416454, 2.843454], [49.416008, 2.845361], [49.415592, 2.847133], [49.415363, 2.848115], [49.415224, 2.848705], [49.415118, 2.849152], [49.414607, 2.851328], [49.414459, 2.851957], [49.414211, 2.85301], [49.413994, 2.853929], [49.413905, 2.854352], [49.413735, 2.854892], [49.413704, 2.85501], [49.41337, 2.856321], [49.413183, 2.85708], [49.413045, 2.857644], [49.412688, 2.859197], [49.412277, 2.860981], [49.412264, 2.861037], [49.412217, 2.861466], [49.412128, 2.861862], [49.412095, 2.861981], [49.411951, 2.862264], [49.41192, 2.862382], [49.41115, 2.863495], [49.411108, 2.863565], [49.410973, 2.86454], [49.410867, 2.864897], [49.410638, 2.865205], [49.4105, 2.86549], [49.410402, 2.865849], [49.410369, 2.866273], [49.410268, 2.866745], [49.410322, 2.86708], [49.410322, 2.867265], [49.410291, 2.867367], [49.410184, 2.867475], [49.410146, 2.86759], [49.410099, 2.86785], [49.410062, 2.86792], [49.41047, 2.868283], [49.410478, 2.86829], [49.410329, 2.869047], [49.409286, 2.873416], [49.409273, 2.873497], [49.409219, 2.873835], [49.409137, 2.874146], [49.409092, 2.874186], [49.409006, 2.874265], [49.408963, 2.874522], [49.408942, 2.874795], [49.408281, 2.877621], [49.408133, 2.878381], [49.408122, 2.87861], [49.408067, 2.878823], [49.407672, 2.880335], [49.407314, 2.88179], [49.4072, 2.882161], [49.40713, 2.88239], [49.407101, 2.882558], [49.407083, 2.882656], [49.406992, 2.883222], [49.406739, 2.884375], [49.406664, 2.884626], [49.406493, 2.885264], [49.406429, 2.885689], [49.40636, 2.885924], [49.406275, 2.886123], [49.406215, 2.886346], [49.406204, 2.886517], [49.406205, 2.886519], [49.406214, 2.88662], [49.406239, 2.886652], [49.406241, 2.886708], [49.406234, 2.88685], [49.406122, 2.887131], [49.40605, 2.887429], [49.405687, 2.887995], [49.405645, 2.888175], [49.40532, 2.88958], [49.405347, 2.889848], [49.405353, 2.889907], [49.405392, 2.890069], [49.405471, 2.890106], [49.405491, 2.890164], [49.405434, 2.890144], [49.405251, 2.890057], [49.40521, 2.890126]],
+                {"bubblingMouseEvents": true, "color": "brown", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "brown", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_94d5859858ced964fcde4b5c8f813833 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_ab34d1d2f368c469d5273f9397d18290 = $(`<div id="html_ab34d1d2f368c469d5273f9397d18290" style="width: 100.0%; height: 100.0%;">Château ↔ Belvédère des Beaux-Monts<br>5600 mètres, 7466 pas, 80 min</div>`)[0];
+                popup_94d5859858ced964fcde4b5c8f813833.setContent(html_ab34d1d2f368c469d5273f9397d18290);
+            
+        
+
+        poly_line_b4a19b6118288430a78e59c188464199.bindPopup(popup_94d5859858ced964fcde4b5c8f813833)
+        ;
+
+        
+    
+    
+            var poly_line_a41eb73b7a326ca611a13e8657135da8 = L.polyline(
+                [[49.419246, 2.832058], [49.41892, 2.831905], [49.418863, 2.832174], [49.418654, 2.832069], [49.418577, 2.83203], [49.418551, 2.83202], [49.418495, 2.831975], [49.418459, 2.831871], [49.418358, 2.831763], [49.418302, 2.831806], [49.417978, 2.831887], [49.417859, 2.831962], [49.417639, 2.832026], [49.417449, 2.831927], [49.417616, 2.831164], [49.417596, 2.831089], [49.417535, 2.831064], [49.417518, 2.83102], [49.41775, 2.830733], [49.417456, 2.830226], [49.417256, 2.829897], [49.416648, 2.828902], [49.416604, 2.828831], [49.416401, 2.828473], [49.416249, 2.828093], [49.416064, 2.827468], [49.416053, 2.827339], [49.416243, 2.827187], [49.416202, 2.827043], [49.416282, 2.826817], [49.416438, 2.826415], [49.4165, 2.826227], [49.416649, 2.825947], [49.416624, 2.825641], [49.416669, 2.825224], [49.416628, 2.824898], [49.416622, 2.824844], [49.416594, 2.824629], [49.416579, 2.824489], [49.416546, 2.824178], [49.416899, 2.823637], [49.416944, 2.823597], [49.416998, 2.823601], [49.416949, 2.82351], [49.41672, 2.822999], [49.416825, 2.822865], [49.416658, 2.822519], [49.416676, 2.82251], [49.416455, 2.821951], [49.417129, 2.821149], [49.41728, 2.820962], [49.417389, 2.820934], [49.417442, 2.820916], [49.417616, 2.820723], [49.417646, 2.820768], [49.417673, 2.820713], [49.417685, 2.820437]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_2acd0923c836c8db79df37ffb52405e8 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_1a96a8f549cc60d6d23aec368b282b31 = $(`<div id="html_1a96a8f549cc60d6d23aec368b282b31" style="width: 100.0%; height: 100.0%;">Château ↔ Parc Songeons<br>1000 mètres, 1333 pas, 13 min</div>`)[0];
+                popup_2acd0923c836c8db79df37ffb52405e8.setContent(html_1a96a8f549cc60d6d23aec368b282b31);
+            
+        
+
+        poly_line_a41eb73b7a326ca611a13e8657135da8.bindPopup(popup_2acd0923c836c8db79df37ffb52405e8)
+        ;
+
+        
+    
+    
+            var poly_line_8cf18ee8086073c2898cf7a62a0cb348 = L.polyline(
+                [[49.411315, 2.840263], [49.411155, 2.840278], [49.411183, 2.839268], [49.411189, 2.839072], [49.411206, 2.837834], [49.41122, 2.837612], [49.411233, 2.837376], [49.411233, 2.837349], [49.411243, 2.836993], [49.411247, 2.836836], [49.411247, 2.836823], [49.41125, 2.836697], [49.411254, 2.836555], [49.411256, 2.836455], [49.411261, 2.836278], [49.411268, 2.836013], [49.411273, 2.835809], [49.411275, 2.835726], [49.411289, 2.835155], [49.41129, 2.835137], [49.411294, 2.834986], [49.411299, 2.834789], [49.411302, 2.834658], [49.411308, 2.834415], [49.411311, 2.834326], [49.411313, 2.834239], [49.411314, 2.834202], [49.411322, 2.83388], [49.411336, 2.833317], [49.411342, 2.83323], [49.411063, 2.832727], [49.410989, 2.832803], [49.410077, 2.831217], [49.40934, 2.829966], [49.409116, 2.829578], [49.408925, 2.829241], [49.408902, 2.829202], [49.40807, 2.827782], [49.407435, 2.826687], [49.4074, 2.826618], [49.407153, 2.826206], [49.406793, 2.825585], [49.406573, 2.825258], [49.406498, 2.82517], [49.406411, 2.82507], [49.406064, 2.824649], [49.405365, 2.823761], [49.404791, 2.823076], [49.404802, 2.822964], [49.404776, 2.822872], [49.404741, 2.822826], [49.404686, 2.8228], [49.404628, 2.822815], [49.404587, 2.822857], [49.403904, 2.821554], [49.403803, 2.821369], [49.403602, 2.820979], [49.403266, 2.820333], [49.403083, 2.819979], [49.402708, 2.819232], [49.402487, 2.818833], [49.401942, 2.817768], [49.401931, 2.817749], [49.401682, 2.817259], [49.401096, 2.816129], [49.400924, 2.815781], [49.400582, 2.815128], [49.400455, 2.814876], [49.400341, 2.81464], [49.400303, 2.814559], [49.400203, 2.814365], [49.399949, 2.813906], [49.399749, 2.813554], [49.399687, 2.813452], [49.399247, 2.812717], [49.399296, 2.812642], [49.398263, 2.810953], [49.398279, 2.810851], [49.398257, 2.808571], [49.398254, 2.808233], [49.398246, 2.806784], [49.398246, 2.806726], [49.398231, 2.80526], [49.398234, 2.805182], [49.398269, 2.805043], [49.398204, 2.804988], [49.39844, 2.804392], [49.398636, 2.803856], [49.399015, 2.804206], [49.399059, 2.804054], [49.399103, 2.804018], [49.399111, 2.803903], [49.399373, 2.803312], [49.3994, 2.803252], [49.399135, 2.80298], [49.399157, 2.802807], [49.399183, 2.802786], [49.399333, 2.802393], [49.399421, 2.802172]],
+                {"bubblingMouseEvents": true, "color": "darkorange", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "darkorange", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_da16d27c6a7ea63ea51dc1e1e34394ed = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_72b15623d05a66f57d6e4f2cb4ee8713 = $(`<div id="html_72b15623d05a66f57d6e4f2cb4ee8713" style="width: 100.0%; height: 100.0%;">Hippodrome ↔ Parc de Bayser<br>4300 mètres, 5733 pas, 59 min</div>`)[0];
+                popup_da16d27c6a7ea63ea51dc1e1e34394ed.setContent(html_72b15623d05a66f57d6e4f2cb4ee8713);
+            
+        
+
+        poly_line_8cf18ee8086073c2898cf7a62a0cb348.bindPopup(popup_da16d27c6a7ea63ea51dc1e1e34394ed)
+        ;
+
+        
+    
+    
+            var poly_line_20e0c3733fa46854db81facd6e2e09d2 = L.polyline(
+                [[49.389402, 2.782892], [49.389496, 2.782783], [49.389555, 2.782633], [49.389672, 2.78252], [49.389813, 2.782452], [49.390086, 2.782411], [49.390425, 2.78245], [49.391555, 2.782927], [49.39354, 2.783517], [49.393761, 2.78372], [49.39398, 2.783877], [49.394532, 2.784044], [49.394961, 2.784038], [49.395348, 2.784103], [49.396073, 2.784664], [49.396841, 2.785494], [49.397154, 2.785972], [49.397461, 2.786528], [49.398153, 2.788085], [49.39882, 2.789493], [49.399254, 2.790149], [49.399924, 2.791111], [49.40027, 2.791943], [49.400458, 2.792193], [49.400126, 2.79226], [49.400065, 2.792276], [49.400061, 2.792795], [49.40006, 2.792938], [49.400056, 2.793505], [49.400058, 2.793692], [49.400039, 2.794294], [49.400022, 2.794429], [49.399957, 2.794664], [49.399738, 2.795263], [49.399696, 2.795359], [49.399361, 2.796222], [49.399017, 2.797118], [49.398864, 2.797495], [49.398541, 2.798305], [49.39851, 2.798385], [49.398364, 2.79876], [49.398287, 2.798959], [49.398634, 2.799294], [49.399161, 2.799781], [49.39912, 2.799884], [49.399517, 2.800253], [49.399546, 2.800367], [49.39951, 2.800444], [49.399495, 2.800522], [49.39946, 2.800663], [49.399406, 2.800871], [49.399326, 2.801086], [49.399245, 2.801233], [49.399158, 2.80138], [49.399377, 2.801685], [49.399553, 2.801846], [49.399421, 2.802172]],
+                {"bubblingMouseEvents": true, "color": "lightgreen", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "lightgreen", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_bac0512f4101fe2c59bf9a86df3ca79b);
+        
+    
+        var popup_72bf4e406ae5158ba2f48d6fb2de7bce = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_9b87eda03dc8d9b538e577a794802b59 = $(`<div id="html_9b87eda03dc8d9b538e577a794802b59" style="width: 100.0%; height: 100.0%;">Piscine ↔ Parc de Bayser<br>2400 mètres, 3200 pas, 34 min</div>`)[0];
+                popup_72bf4e406ae5158ba2f48d6fb2de7bce.setContent(html_9b87eda03dc8d9b538e577a794802b59);
+            
+        
+
+        poly_line_20e0c3733fa46854db81facd6e2e09d2.bindPopup(popup_72bf4e406ae5158ba2f48d6fb2de7bce)
+        ;
+
+        
+    
+</script>
+</html>
